@@ -1,5 +1,6 @@
 export default function Home() {
-  const whatsapp = "https://wa.me/5561999656269?text=Ol%C3%A1%21%20Quero%20um%20or%C3%A7amento%20na%20NovaStack%20(Desenvolvimento).";
+ const whatsapp = "https://wa.me/5561996088711?text=Ol%C3%A1%21%20Quero%20um%20or%C3%A7amento%20na%20NovaStack%20(Desenvolvimento).";
+
 
   return (
     <main className="min-h-screen bg-[#070A12] text-[#EAF0FF]">
