@@ -1,35 +1,53 @@
-const cases = [
+"use client";
+
+import { useMemo, useState } from "react";
+
+type CaseItem = {
+  slug: string;
+  title: string;
+  tag: "Sites" | "Sistemas" | "Apps" | "Chatbot";
+  desc: string;
+  tech: string[];
+};
+
+const allCases: CaseItem[] = [
   {
+    slug: "site-institucional-premium",
     title: "Site Institucional Premium",
     tag: "Sites",
     desc: "Layout moderno, rápido e otimizado para conversão (SEO + performance).",
     tech: ["Next.js", "Tailwind", "SEO"],
   },
   {
+    slug: "portal-cliente-dashboard",
     title: "Portal do Cliente (Dashboard)",
     tag: "Sistemas",
     desc: "Painel com login, acompanhamento do projeto, chamados e alertas.",
-    tech: ["Node.js", "Next.js", "Auth"],
+    tech: ["Next.js", "Auth", "Dashboard"],
   },
   {
-    title: "Sistema de Orçamentos",
+    slug: "sistema-orcamentos-propostas",
+    title: "Sistema de Orçamentos & Propostas",
     tag: "Sistemas",
     desc: "Fluxo completo: solicitação → proposta → aprovação → contrato.",
     tech: ["API", "PostgreSQL", "Admin"],
   },
   {
+    slug: "landing-page-vendas",
     title: "Landing Page de Vendas",
     tag: "Sites",
     desc: "Página focada em leads com WhatsApp, formulário e funil simples.",
-    tech: ["Next.js", "Copy", "Analytics"],
+    tech: ["Copy", "Analytics", "Performance"],
   },
   {
+    slug: "app-pwa-catalogo",
     title: "App PWA (Catálogo/Serviços)",
     tag: "Apps",
-    desc: "Aplicação leve, instalável no celular, com notificações (opcional).",
+    desc: "Aplicação leve, instalável no celular, com recursos offline (opcional).",
     tech: ["PWA", "React", "Offline"],
   },
   {
+    slug: "chatbot-whatsapp-site",
     title: "Chatbot WhatsApp + Site",
     tag: "Chatbot",
     desc: "Atendimento automático, captura de leads e direcionamento para humano.",
@@ -37,9 +55,19 @@ const cases = [
   },
 ];
 
+const filters = ["Todos", "Sites", "Sistemas", "Apps", "Chatbot"] as const;
+type Filter = (typeof filters)[number];
+
 export default function PortfolioPage() {
+  const [filter, setFilter] = useState<Filter>("Todos");
+
   const whatsapp =
     "https://wa.me/5561996088711?text=Ol%C3%A1%21%20Quero%20ver%20mais%20cases%20da%20NovaStack%20e%20pedir%20um%20or%C3%A7amento.";
+
+  const list = useMemo(() => {
+    if (filter === "Todos") return allCases;
+    return allCases.filter((c) => c.tag === filter);
+  }, [filter]);
 
   return (
     <main className="min-h-screen bg-[#070A12] text-[#EAF0FF]">
@@ -72,27 +100,61 @@ export default function PortfolioPage() {
 
         <div className="mx-auto max-w-6xl px-4 py-14">
           <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-            Portfólio <span className="bg-gradient-to-r from-cyan-400 to-violet-500 bg-clip-text text-transparent">NovaStack</span>
+            Portfólio{" "}
+            <span className="bg-gradient-to-r from-cyan-400 to-violet-500 bg-clip-text text-transparent">
+              NovaStack
+            </span>
           </h1>
           <p className="mt-3 max-w-2xl text-[#9AA4BF]">
-            Alguns exemplos do que entregamos: sites rápidos, sistemas completos, apps e automações com chatbot.
-            (Podemos adaptar ao seu negócio.)
+            Selecione uma categoria e veja exemplos. Depois a gente coloca cases reais com prints e resultados.
           </p>
 
+          {/* Filters */}
+          <div className="mt-7 flex flex-wrap gap-2">
+            {filters.map((f) => {
+              const active = f === filter;
+              return (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={[
+                    "rounded-full px-4 py-2 text-sm transition",
+                    active
+                      ? "bg-gradient-to-r from-cyan-400 to-violet-500 text-[#070A12] font-semibold"
+                      : "border border-white/10 bg-white/5 text-white hover:bg-white/10",
+                  ].join(" ")}
+                >
+                  {f}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Grid */}
           <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {cases.map((c) => (
+            {list.map((c) => (
               <div
-                key={c.title}
-                className="rounded-2xl border border-white/10 bg-white/5 p-6 hover:bg-white/10"
+                key={c.slug}
+                className="group rounded-2xl border border-white/10 bg-white/5 p-5 hover:bg-white/10"
               >
-                <div className="flex items-center justify-between">
+                {/* Mock image */}
+                <div className="relative overflow-hidden rounded-xl border border-white/10 bg-[#0D1224]/60">
+                  <div className="h-28 w-full bg-gradient-to-br from-cyan-400/20 via-white/0 to-violet-500/20" />
+                  <div className="absolute inset-0 grid place-items-center">
+                    <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-1 text-xs text-[#9AA4BF]">
+                      Preview • {c.tag}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between gap-2">
                   <div className="text-sm font-semibold text-white">{c.title}</div>
-                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-[#9AA4BF]">
+                  <span className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-[#9AA4BF]">
                     {c.tag}
                   </span>
                 </div>
 
-                <div className="mt-3 text-sm text-[#9AA4BF]">{c.desc}</div>
+                <div className="mt-2 text-sm text-[#9AA4BF]">{c.desc}</div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   {c.tech.map((t) => (
@@ -105,12 +167,20 @@ export default function PortfolioPage() {
                   ))}
                 </div>
 
-                <a
-                  href={whatsapp}
-                  className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 px-4 py-2 text-sm font-semibold text-[#070A12] hover:opacity-90"
-                >
-                  Quero um projeto assim
-                </a>
+                <div className="mt-5 flex gap-2">
+                  <a
+                    href={`/portfolio/${c.slug}`}
+                    className="inline-flex flex-1 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
+                  >
+                    Ver detalhes
+                  </a>
+                  <a
+                    href={whatsapp}
+                    className="inline-flex flex-1 items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 px-4 py-2 text-sm font-semibold text-[#070A12] hover:opacity-90"
+                  >
+                    Quero um igual
+                  </a>
+                </div>
               </div>
             ))}
           </div>
@@ -118,7 +188,7 @@ export default function PortfolioPage() {
           <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-7">
             <div className="text-lg font-semibold">Quer entrar no próximo case?</div>
             <div className="mt-2 text-sm text-[#9AA4BF]">
-              Me diga o que você precisa (site, sistema, app ou chatbot) e eu te passo uma proposta rápida.
+              Me diga o que você precisa e eu te passo uma proposta rápida.
             </div>
             <div className="mt-5 flex flex-wrap gap-3">
               <a
@@ -153,3 +223,4 @@ export default function PortfolioPage() {
     </main>
   );
 }
+
