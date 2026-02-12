@@ -76,7 +76,9 @@ export default function PortfolioPage() {
           <a href="/" className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-cyan-400/90 to-violet-500/90 shadow-lg shadow-cyan-400/20" />
             <div className="leading-tight">
-              <div className="text-base font-semibold tracking-tight">NovaStack</div>
+              <div className="text-base font-semibold tracking-tight">
+                NovaStack
+              </div>
               <div className="text-xs text-[#9AA4BF]">Portfólio</div>
             </div>
           </a>
@@ -84,6 +86,8 @@ export default function PortfolioPage() {
           <div className="flex items-center gap-3">
             <a
               href={whatsapp}
+              target="_blank"
+              rel="noreferrer"
               className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white hover:bg-white/10"
             >
               Falar no WhatsApp
@@ -106,7 +110,8 @@ export default function PortfolioPage() {
             </span>
           </h1>
           <p className="mt-3 max-w-2xl text-[#9AA4BF]">
-            Selecione uma categoria e veja exemplos. Depois a gente coloca cases reais com prints e resultados.
+            Selecione uma categoria e veja exemplos. Depois a gente coloca cases
+            reais com prints e resultados.
           </p>
 
           {/* Filters */}
@@ -135,9 +140,8 @@ export default function PortfolioPage() {
             {list.map((c) => (
               <div
                 key={c.slug}
-                className="group rounded-2xl border border-white/10 bg-white/5 p-5 hover:bg-white/10"
+                className="group rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:-translate-y-1 hover:bg-white/10 hover:shadow-2xl hover:shadow-cyan-500/10"
               >
-                {/* Mock image */}
                 <div className="relative overflow-hidden rounded-xl border border-white/10 bg-[#0D1224]/60">
                   <div className="h-28 w-full bg-gradient-to-br from-cyan-400/20 via-white/0 to-violet-500/20" />
                   <div className="absolute inset-0 grid place-items-center">
@@ -148,7 +152,9 @@ export default function PortfolioPage() {
                 </div>
 
                 <div className="mt-4 flex items-center justify-between gap-2">
-                  <div className="text-sm font-semibold text-white">{c.title}</div>
+                  <div className="text-sm font-semibold text-white">
+                    {c.title}
+                  </div>
                   <span className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-[#9AA4BF]">
                     {c.tag}
                   </span>
@@ -176,6 +182,8 @@ export default function PortfolioPage() {
                   </a>
                   <a
                     href={whatsapp}
+                    target="_blank"
+                    rel="noreferrer"
                     className="inline-flex flex-1 items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 px-4 py-2 text-sm font-semibold text-[#070A12] hover:opacity-90"
                   >
                     Quero um igual
@@ -193,6 +201,8 @@ export default function PortfolioPage() {
             <div className="mt-5 flex flex-wrap gap-3">
               <a
                 href={whatsapp}
+                target="_blank"
+                rel="noreferrer"
                 className="rounded-xl bg-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/15"
               >
                 Chamar no WhatsApp
@@ -213,9 +223,15 @@ export default function PortfolioPage() {
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>© {new Date().getFullYear()} NovaStack Desenvolvimento.</div>
             <div className="flex gap-4">
-              <a className="hover:text-white" href="/">Início</a>
-              <a className="hover:text-white" href="/#servicos">Serviços</a>
-              <a className="hover:text-white" href="/#planos">Planos</a>
+              <a className="hover:text-white" href="/">
+                Início
+              </a>
+              <a className="hover:text-white" href="/#servicos">
+                Serviços
+              </a>
+              <a className="hover:text-white" href="/#planos">
+                Planos
+              </a>
             </div>
           </div>
         </div>
@@ -223,4 +239,3 @@ export default function PortfolioPage() {
     </main>
   );
 }
-
