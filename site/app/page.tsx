@@ -1,69 +1,203 @@
-export default function Home() {
- const whatsapp = "https://wa.me/5561996088711?text=Ol%C3%A1%21%20Quero%20um%20or%C3%A7amento%20na%20NovaStack%20(Desenvolvimento).";
+"use client";
+
+import { useMemo, useState } from "react";
+
+type CaseItem = {
+  slug: string;
+  title: string;
+  tag: "Sites" | "Sistemas" | "Apps" | "Chatbot";
+  desc: string;
+  tech: string[];
+  image: string;
+};
+
+const allCases: CaseItem[] = [
+  {
+    slug: "site-institucional-premium",
+    title: "Site Institucional Premium",
+    tag: "Sites",
+    desc: "Layout moderno, rápido e otimizado para conversão (SEO + performance).",
+    tech: ["Next.js", "Tailwind", "SEO"],
+    image: "/images/estrutura-1.jpg",
+  },
+  {
+    slug: "portal-cliente-dashboard",
+    title: "Portal do Cliente (Dashboard)",
+    tag: "Sistemas",
+    desc: "Painel com login, acompanhamento do projeto, chamados e alertas.",
+    tech: ["Next.js", "Auth", "Dashboard"],
+    image: "/images/estrutura-2.jpg",
+  },
+  {
+    slug: "sistema-orcamentos-propostas",
+    title: "Sistema de Orçamentos & Propostas",
+    tag: "Sistemas",
+    desc: "Fluxo completo: solicitação → proposta → aprovação → contrato.",
+    tech: ["API", "PostgreSQL", "Admin"],
+    image: "/images/estrutura-3.jpg",
+  },
+  {
+    slug: "landing-page-vendas",
+    title: "Landing Page de Vendas",
+    tag: "Sites",
+    desc: "Página focada em leads com WhatsApp, formulário e funil simples.",
+    tech: ["Copy", "Analytics", "Performance"],
+    image: "/images/estrutura-1.jpg",
+  },
+  {
+    slug: "app-pwa-catalogo",
+    title: "App PWA (Catálogo/Serviços)",
+    tag: "Apps",
+    desc: "Aplicação leve, instalável no celular, com recursos offline (opcional).",
+    tech: ["PWA", "React", "Offline"],
+    image: "/images/estrutura-2.jpg",
+  },
+  {
+    slug: "chatbot-whatsapp-site",
+    title: "Chatbot WhatsApp + Site",
+    tag: "Chatbot",
+    desc: "Atendimento automático, captura de leads e direcionamento para humano.",
+    tech: ["WhatsApp API", "Webhooks", "IA"],
+    image: "/images/estrutura-3.jpg",
+  },
+];
+
+const filters = ["Todos", "Sites", "Sistemas", "Apps", "Chatbot"] as const;
+type Filter = (typeof filters)[number];
+
+export default function PortfolioPage() {
+  const [filter, setFilter] = useState<Filter>("Todos");
+
+  const whatsapp =
+    "https://wa.me/5561996088711?text=Ol%C3%A1%21%20Quero%20ver%20mais%20cases%20da%20NovaStack%20e%20pedir%20um%20or%C3%A7amento.";
+
+  const list = useMemo(() => {
+    if (filter === "Todos") return allCases;
+    return allCases.filter((c) => c.tag === filter);
+  }, [filter]);
 
   return (
     <main className="min-h-screen bg-[#070A12] text-[#EAF0FF]">
-      {/* Topbar */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#070A12]/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
+      <header className="border-b border-white/10 bg-[#070A12]/80 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
+          <a href="/" className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-cyan-400/90 to-violet-500/90 shadow-lg shadow-cyan-400/20" />
             <div className="leading-tight">
               <div className="text-base font-semibold tracking-tight">NovaStack</div>
-              <div className="text-xs text-[#9AA4BF]">Desenvolvimento</div>
+              <div className="text-xs text-[#9AA4BF]">Portfólio</div>
             </div>
-          </div>
+          </a>
 
-          <nav className="hidden items-center gap-6 text-sm text-[#9AA4BF] md:flex">
-            <a className="hover:text-white" href="#servicos">Serviços</a>
-            <a className="hover:text-white" href="#portfolio">Portfólio</a>
-            <a className="hover:text-white" href="#planos">Planos</a>
-            <a className="hover:text-white" href="#contato">Contato</a>
-            <a className="hover:text-white" href="/portfolio">Portfólio</a>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <a
-              href={whatsapp}
-              className="hidden rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white hover:bg-white/10 md:inline-flex"
-            >
-              Falar no WhatsApp
-            </a>
-            <a
-              href="#contato"
-              className="rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 px-4 py-2 text-sm font-semibold text-[#070A12] shadow-lg shadow-cyan-400/20 hover:opacity-90"
-            >
-              Solicitar orçamento
-            </a>
-          </div>
+          <a
+            href={whatsapp}
+            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white hover:bg-white/10"
+          >
+            Falar no WhatsApp
+          </a>
         </div>
       </header>
 
-      {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -top-24 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-cyan-400/15 blur-3xl" />
           <div className="absolute top-20 right-[-120px] h-96 w-96 rounded-full bg-violet-500/15 blur-3xl" />
-          <div className="absolute bottom-[-120px] left-[-120px] h-96 w-96 rounded-full bg-cyan-400/10 blur-3xl" />
         </div>
 
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 md:grid-cols-2 md:py-20">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-[#9AA4BF]">
-              <span className="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_20px_rgba(0,229,255,0.7)]" />
-              Sites • Sistemas • Apps • Chatbot • Hospedagem
-            </p>
+        <div className="mx-auto max-w-6xl px-4 py-14">
+          <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+            Portfólio{" "}
+            <span className="bg-gradient-to-r from-cyan-400 to-violet-500 bg-clip-text text-transparent">
+              NovaStack
+            </span>
+          </h1>
+          <p className="mt-3 max-w-2xl text-[#9AA4BF]">
+            Selecione uma categoria e veja exemplos do que entregamos.
+          </p>
 
-            <h1 className="mt-6 text-4xl font-bold tracking-tight md:text-5xl">
-              Desenvolvimento <span className="bg-gradient-to-r from-cyan-400 to-violet-500 bg-clip-text text-transparent">moderno</span> para empresas que querem crescer.
-            </h1>
+          {/* Filters */}
+          <div className="mt-7 flex flex-wrap gap-2">
+            {filters.map((f) => {
+              const active = f === filter;
+              return (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={[
+                    "rounded-full px-4 py-2 text-sm transition",
+                    active
+                      ? "bg-gradient-to-r from-cyan-400 to-violet-500 text-[#070A12] font-semibold"
+                      : "border border-white/10 bg-white/5 text-white hover:bg-white/10",
+                  ].join(" ")}
+                >
+                  {f}
+                </button>
+              );
+            })}
+          </div>
 
-            <p className="mt-5 max-w-xl text-base text-[#9AA4BF] md:text-lg">
-              Criamos sites rápidos, sistemas completos, aplicativos e automações com chatbot.
-              Tudo com suporte, manutenção e hospedagem profissional.
-            </p>
+          {/* Grid */}
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {list.map((c) => (
+              <div
+                key={c.slug}
+                className="group overflow-hidden rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10"
+              >
+                {/* Real image */}
+                <div className="relative">
+                  <img
+                    src={c.image}
+                    alt={c.title}
+                    className="h-44 w-full object-cover opacity-90 transition group-hover:opacity-100"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#070A12]/70 via-transparent to-transparent" />
+                  <div className="absolute bottom-3 left-3">
+                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-[#EAF0FF]">
+                      {c.tag}
+                    </span>
+                  </div>
+                </div>
 
-            <div className="mt-8 flex flex-wrap gap-3">
+                <div className="p-5">
+                  <div className="text-sm font-semibold text-white">{c.title}</div>
+                  <div className="mt-2 text-sm text-[#9AA4BF]">{c.desc}</div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {c.tech.map((t) => (
+                      <span
+                        key={t}
+                        className="rounded-lg border border-white/10 bg-[#0D1224]/60 px-2.5 py-1 text-xs text-[#9AA4BF]"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-5 flex gap-2">
+                    <a
+                      href={`/portfolio/${c.slug}`}
+                      className="inline-flex flex-1 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
+                    >
+                      Ver detalhes
+                    </a>
+                    <a
+                      href={whatsapp}
+                      className="inline-flex flex-1 items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 px-4 py-2 text-sm font-semibold text-[#070A12] hover:opacity-90"
+                    >
+                      Quero um igual
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-7">
+            <div className="text-lg font-semibold">Quer entrar no próximo case?</div>
+            <div className="mt-2 text-sm text-[#9AA4BF]">
+              Me diga o que você precisa e eu te passo uma proposta rápida.
+            </div>
+            <div className="mt-5 flex flex-wrap gap-3">
               <a
                 href={whatsapp}
                 className="rounded-xl bg-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/15"
@@ -71,155 +205,24 @@ export default function Home() {
                 Chamar no WhatsApp
               </a>
               <a
-                href="#servicos"
+                href="/#contato"
                 className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
               >
-                Ver serviços
+                Ir para contato
               </a>
             </div>
-
-            <div className="mt-10 grid grid-cols-3 gap-3 text-xs text-[#9AA4BF]">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <div className="text-white font-semibold">Entrega rápida</div>
-                <div className="mt-1">Processo claro</div>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <div className="text-white font-semibold">Alta performance</div>
-                <div className="mt-1">SEO + Speed</div>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <div className="text-white font-semibold">Suporte real</div>
-                <div className="mt-1">Manutenção</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Mock card */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-cyan-400/10">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-semibold">Portal do Cliente</div>
-                <div className="mt-1 text-xs text-[#9AA4BF]">Acompanhe projetos, chamados e alertas</div>
-              </div>
-              <div className="rounded-xl bg-gradient-to-br from-cyan-400/80 to-violet-500/80 px-3 py-1 text-xs font-semibold text-[#070A12]">
-                NOVO
-              </div>
-            </div>
-
-            <div className="mt-6 space-y-3">
-              {[
-                { t: "Status do projeto", d: "Em desenvolvimento • 68%" },
-                { t: "Chamados", d: "Suporte técnico • Prioridade normal" },
-                { t: "Alertas", d: "Deploy publicado • Site no ar" },
-              ].map((i) => (
-                <div key={i.t} className="rounded-xl border border-white/10 bg-[#0D1224]/60 p-4">
-                  <div className="text-sm font-semibold text-white">{i.t}</div>
-                  <div className="mt-1 text-xs text-[#9AA4BF]">{i.d}</div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6 rounded-xl border border-white/10 bg-[#0D1224]/60 p-4">
-              <div className="text-xs text-[#9AA4BF]">Chat interno</div>
-              <div className="mt-2 h-2 w-2 rounded-full bg-cyan-400" />
-              <div className="mt-2 text-sm text-white font-semibold">Atendimento direto no painel</div>
-              <div className="mt-1 text-xs text-[#9AA4BF]">Respostas rápidas e histórico salvo.</div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Serviços */}
-      <section id="servicos" className="mx-auto max-w-6xl px-4 py-14">
-        <h2 className="text-2xl font-bold">Serviços</h2>
-        <p className="mt-2 text-[#9AA4BF]">Tudo que sua empresa precisa em um só lugar.</p>
-
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {[
-            { t: "Sites", d: "Institucional, landing pages, e-commerce e portais." },
-            { t: "Sistemas Web", d: "Painéis, relatórios, usuários, permissões e integrações." },
-            { t: "Apps", d: "PWA, Android e iOS com foco em usabilidade." },
-            { t: "Chatbots", d: "WhatsApp + site com atendimento e automações." },
-            { t: "Hospedagem", d: "VPS, domínio, SSL, e-mails e monitoramento." },
-            { t: "Manutenção", d: "Atualizações, melhorias contínuas e suporte." },
-          ].map((i) => (
-            <div key={i.t} className="rounded-2xl border border-white/10 bg-white/5 p-6 hover:bg-white/10">
-              <div className="text-lg font-semibold">{i.t}</div>
-              <div className="mt-2 text-sm text-[#9AA4BF]">{i.d}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Planos */}
-      <section id="planos" className="mx-auto max-w-6xl px-4 py-14">
-        <h2 className="text-2xl font-bold">Planos</h2>
-        <p className="mt-2 text-[#9AA4BF]">Escolha o melhor para seu momento. Podemos personalizar.</p>
-
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {[
-            { t: "Start", p: "Sob consulta", items: ["Site institucional", "Formulário de leads", "SSL + performance"] },
-            { t: "Pro", p: "Sob consulta", items: ["Site + páginas extras", "Integrações", "Manutenção mensal"] },
-            { t: "Premium", p: "Sob consulta", items: ["Sistema/Portal", "Chatbot + automações", "Suporte prioritário"] },
-          ].map((pl) => (
-            <div key={pl.t} className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <div className="flex items-center justify-between">
-                <div className="text-lg font-semibold">{pl.t}</div>
-                <div className="text-sm text-[#9AA4BF]">{pl.p}</div>
-              </div>
-              <ul className="mt-4 space-y-2 text-sm text-[#9AA4BF]">
-                {pl.items.map((x) => (
-                  <li key={x} className="flex items-start gap-2">
-                    <span className="mt-1 h-2 w-2 rounded-full bg-cyan-400/80" />
-                    <span>{x}</span>
-                  </li>
-                ))}
-              </ul>
-              <a
-                href={whatsapp}
-                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 px-4 py-2 text-sm font-semibold text-[#070A12] hover:opacity-90"
-              >
-                Pedir orçamento
-              </a>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Contato */}
-      <section id="contato" className="mx-auto max-w-6xl px-4 py-14">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
-          <h2 className="text-2xl font-bold">Contato</h2>
-          <p className="mt-2 text-[#9AA4BF]">
-            Fale com a NovaStack e receba um orçamento rápido.
-          </p>
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <a
-              href={whatsapp}
-              className="rounded-xl bg-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/15"
-            >
-              WhatsApp
-            </a>
-            <a
-              href="mailto:contato@dcinfinity.net.br"
-              className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
-            >
-              E-mail
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
       <footer className="border-t border-white/10 py-10">
         <div className="mx-auto max-w-6xl px-4 text-sm text-[#9AA4BF]">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <div>© {new Date().getFullYear()} NovaStack Desenvolvimento. Todos os direitos reservados.</div>
+            <div>© {new Date().getFullYear()} NovaStack Desenvolvimento.</div>
             <div className="flex gap-4">
-              <a className="hover:text-white" href="#servicos">Serviços</a>
-              <a className="hover:text-white" href="#planos">Planos</a>
-              <a className="hover:text-white" href="#contato">Contato</a>
+              <a className="hover:text-white" href="/">Início</a>
+              <a className="hover:text-white" href="/#servicos">Serviços</a>
+              <a className="hover:text-white" href="/#planos">Planos</a>
             </div>
           </div>
         </div>
