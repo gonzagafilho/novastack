@@ -7,6 +7,10 @@ export const runtime = "nodejs"; // precisa de fs
 type Lead = {
   id: string;
   createdAt: string;
+  status: "novo" | "negociando" | "proposta" | "fechado" | "perdido";
+  finalValue?: number;
+  entrada?: number;
+  parcelas?: number;
   name: string;
   phone: string;
   services: any[];
@@ -24,6 +28,7 @@ type Lead = {
   preProposal: string;
 };
 
+
 function ensureDataFile(filePath: string) {
   const dir = path.dirname(filePath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -40,11 +45,15 @@ export async function POST(req: Request) {
     const raw = fs.readFileSync(filePath, "utf8");
     const list = JSON.parse(raw) as Lead[];
 
+    const { status: _ignore, ...cleanBody } = body;
+
     const lead: Lead = {
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
-      ...body,
-    };
+      status: "novo",
+      ...cleanBody,
+  };
+
 
     list.unshift(lead);
     fs.writeFileSync(filePath, JSON.stringify(list, null, 2), "utf8");
