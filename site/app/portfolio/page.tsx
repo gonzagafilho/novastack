@@ -8,6 +8,7 @@ type CaseItem = {
   tag: "Sites" | "Sistemas" | "Apps" | "Chatbot";
   desc: string;
   tech: string[];
+  image: string;
 };
 
 const allCases: CaseItem[] = [
@@ -17,6 +18,7 @@ const allCases: CaseItem[] = [
     tag: "Sites",
     desc: "Layout moderno, rápido e otimizado para conversão (SEO + performance).",
     tech: ["Next.js", "Tailwind", "SEO"],
+    image: "/images/estrutura-1.jpg",
   },
   {
     slug: "portal-cliente-dashboard",
@@ -24,6 +26,7 @@ const allCases: CaseItem[] = [
     tag: "Sistemas",
     desc: "Painel com login, acompanhamento do projeto, chamados e alertas.",
     tech: ["Next.js", "Auth", "Dashboard"],
+    image: "/images/estrutura-2.jpg",
   },
   {
     slug: "sistema-orcamentos-propostas",
@@ -31,6 +34,7 @@ const allCases: CaseItem[] = [
     tag: "Sistemas",
     desc: "Fluxo completo: solicitação → proposta → aprovação → contrato.",
     tech: ["API", "PostgreSQL", "Admin"],
+    image: "/images/estrutura-3.jpg",
   },
   {
     slug: "landing-page-vendas",
@@ -38,6 +42,7 @@ const allCases: CaseItem[] = [
     tag: "Sites",
     desc: "Página focada em leads com WhatsApp, formulário e funil simples.",
     tech: ["Copy", "Analytics", "Performance"],
+    image: "/images/estrutura-1.jpg",
   },
   {
     slug: "app-pwa-catalogo",
@@ -45,6 +50,7 @@ const allCases: CaseItem[] = [
     tag: "Apps",
     desc: "Aplicação leve, instalável no celular, com recursos offline (opcional).",
     tech: ["PWA", "React", "Offline"],
+    image: "/images/estrutura-2.jpg",
   },
   {
     slug: "chatbot-whatsapp-site",
@@ -52,6 +58,7 @@ const allCases: CaseItem[] = [
     tag: "Chatbot",
     desc: "Atendimento automático, captura de leads e direcionamento para humano.",
     tech: ["WhatsApp API", "Webhooks", "IA"],
+    image: "/images/estrutura-3.jpg",
   },
 ];
 
@@ -140,13 +147,18 @@ export default function PortfolioPage() {
             {list.map((c) => (
               <div
                 key={c.slug}
-                className="group rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:-translate-y-1 hover:bg-white/10 hover:shadow-2xl hover:shadow-cyan-500/10"
+                className="group rounded-2xl border border-white/10 bg-white/5 p-5 transition-all duration-500 hover:-translate-y-2 hover:bg-white/10 hover:shadow-2xl hover:shadow-cyan-500/15"
               >
-                <div className="relative overflow-hidden rounded-xl border border-white/10 bg-[#0D1224]/60">
-                  <div className="h-28 w-full bg-gradient-to-br from-cyan-400/20 via-white/0 to-violet-500/20" />
-                  <div className="absolute inset-0 grid place-items-center">
-                    <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-1 text-xs text-[#9AA4BF]">
-                      Preview • {c.tag}
+                <div className="relative h-44 overflow-hidden rounded-xl border border-white/10 bg-[#0D1224]/60">
+                  <img
+                    src={c.image}
+                    alt={c.title}
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+                  <div className="absolute left-3 top-3">
+                    <div className="rounded-full border border-white/10 bg-black/40 px-3 py-1 text-xs text-white/80 backdrop-blur">
+                      {c.tag}
                     </div>
                   </div>
                 </div>
