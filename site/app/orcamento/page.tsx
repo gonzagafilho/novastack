@@ -301,12 +301,40 @@ export default function OrcamentoPage() {
     setSelectedAddons((p) => ({ ...p, [k]: !p[k] }));
   }
 
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!isValid) return;
-    window.open(waLink, "_blank", "noopener,noreferrer");
-  }
+  async function submit(e: React.FormEvent) {
+  e.preventDefault();
+  if (!isValid) return;
 
+  const payload = {
+    name,
+    phone: onlyDigits(phone),
+    services: pickedServices,
+    addons: pickedAddons,
+    sitePages,
+    systemUsers,
+    appType,
+    totalMin: totals.min,
+    totalMax: totals.max,
+    prazoMin: prazo.min,
+    prazoMax: prazo.max,
+    previsaoMin: formatBR(prazoDatas.minDate),
+    previsaoMax: formatBR(prazoDatas.maxDate),
+    details,
+    preProposal,
+  };
+
+  // salva lead
+  try {
+    await fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch {}
+
+  // abre whatsapp
+  window.open(waLink, "_blank", "noopener,noreferrer");
+}
   function gerarPdf() {
     // Sem instalar nada: usa impressão do navegador (Salvar como PDF)
     window.print();
