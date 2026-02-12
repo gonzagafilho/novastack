@@ -5,6 +5,7 @@ type CaseItem = {
   summary: string;
   bullets: string[];
   tech: string[];
+  image: string;
 };
 
 const cases: CaseItem[] = [
@@ -15,6 +16,7 @@ const cases: CaseItem[] = [
     summary: "Site moderno com foco em conversão, performance e presença no Google.",
     bullets: ["Design premium", "SEO e performance", "Formulário + WhatsApp", "Hospedagem e SSL"],
     tech: ["Next.js", "Tailwind", "SEO"],
+    image: "/images/estrutura-1.jpg",
   },
   {
     slug: "portal-cliente-dashboard",
@@ -23,6 +25,7 @@ const cases: CaseItem[] = [
     summary: "Painel com login, chamados, andamento de projetos e histórico de atendimento.",
     bullets: ["Login e permissões", "Dashboard de status", "Chamados e chat interno", "Alertas automáticos"],
     tech: ["Next.js", "Auth", "Dashboard"],
+    image: "/images/estrutura-2.jpg",
   },
   {
     slug: "sistema-orcamentos-propostas",
@@ -31,6 +34,7 @@ const cases: CaseItem[] = [
     summary: "Gestão de propostas do pedido até a aprovação com histórico e organização total.",
     bullets: ["Cadastro de clientes", "Geração de propostas", "Aprovação e registros", "Relatórios e exportação"],
     tech: ["API", "PostgreSQL", "Admin"],
+    image: "/images/estrutura-3.jpg",
   },
   {
     slug: "landing-page-vendas",
@@ -39,6 +43,7 @@ const cases: CaseItem[] = [
     summary: "Landing page focada em leads com CTA forte e rastreamento de resultados.",
     bullets: ["Copy persuasiva", "Botões WhatsApp", "Formulário rápido", "Métricas e tags"],
     tech: ["Copy", "Analytics", "Performance"],
+    image: "/images/estrutura-1.jpg",
   },
   {
     slug: "app-pwa-catalogo",
@@ -47,6 +52,7 @@ const cases: CaseItem[] = [
     summary: "App instalável no celular para catálogo, pedidos, serviços e atendimento.",
     bullets: ["Instalável (PWA)", "Experiência rápida", "Offline opcional", "Integrações"],
     tech: ["PWA", "React", "Offline"],
+    image: "/images/estrutura-2.jpg",
   },
   {
     slug: "chatbot-whatsapp-site",
@@ -55,6 +61,7 @@ const cases: CaseItem[] = [
     summary: "Bot que atende, qualifica lead e direciona para humano, com histórico e automações.",
     bullets: ["Fluxos e FAQs", "Captura de leads", "Integração WhatsApp", "Escalonamento humano"],
     tech: ["WhatsApp API", "Webhooks", "IA"],
+    image: "/images/estrutura-3.jpg",
   },
 ];
 
@@ -103,7 +110,7 @@ export default async function CaseDetailsPage({
       </header>
 
       <section className="mx-auto max-w-6xl px-4 py-14">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-6">
           <div>
             <div className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-[#9AA4BF]">
               {c.tag}
@@ -118,6 +125,11 @@ export default async function CaseDetailsPage({
           >
             Quero um projeto assim
           </a>
+        </div>
+
+        {/* Imagem real */}
+        <div className="mt-8 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+          <img src={c.image} alt={c.title} className="h-[360px] w-full object-cover" />
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-2">
