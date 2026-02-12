@@ -220,10 +220,10 @@ export default function PortfolioPage() {
                 Chamar no WhatsApp
               </a>
               <a
-                href="/#contato"
-                className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
+                href="/orcamento"
+                className="rounded-xl bg-gradient-to-r from-cyan-400 to-violet-500 px-4 py-2 text-sm font-semibold text-[#070A12] shadow-lg shadow-cyan-400/20 hover:opacity-90"
               >
-                Ir para contato
+                Solicitar orçamento
               </a>
             </div>
           </div>

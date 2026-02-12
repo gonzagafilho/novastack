@@ -86,6 +86,28 @@ function brl(n: number) {
 function onlyDigits(v: string) {
   return v.replace(/\D/g, "");
 }
+function isWeekend(d: Date) {
+  const day = d.getDay(); // 0=Dom, 6=Sáb
+  return day === 0 || day === 6;
+}
+
+function addBusinessDays(start: Date, businessDays: number) {
+  const d = new Date(start);
+  let added = 0;
+
+  // começa “amanhã” (prazo real de entrega)
+  d.setDate(d.getDate() + 1);
+
+  while (added < businessDays) {
+    if (!isWeekend(d)) added++;
+    if (added < businessDays) d.setDate(d.getDate() + 1);
+  }
+  return d;
+}
+
+function formatBR(d: Date) {
+  return d.toLocaleDateString("pt-BR");
+}
 
 export default function OrcamentoPage() {
   const whatsappNumber = "5561996088711";
@@ -203,6 +225,12 @@ export default function OrcamentoPage() {
 
     return { min, max };
   }, [pickedServices, pickedAddons, dynamicAdjust, selectedAddons.integracoes, selectedServices.chatbot, selectedAddons.portal]);
+  const prazoDatas = useMemo(() => {
+  const today = new Date();
+  const minDate = addBusinessDays(today, prazo.min);
+  const maxDate = addBusinessDays(today, prazo.max);
+  return { minDate, maxDate };
+}, [prazo.min, prazo.max]);
 
   const errors = useMemo(() => {
     const e: Record<string, string> = {};
@@ -248,7 +276,9 @@ export default function OrcamentoPage() {
       extras,
       "",
       `🧾 *Subtotal estimado:* ${brl(totals.min)} a ${brl(totals.max)} (valor final após confirmar escopo)`,
-      `⏱️ *Prazo estimado:* ${prazo.min} a ${prazo.max} dias`,
+      `⏱️ *Prazo estimado:* ${prazo.min} a ${prazo.max} dias úteis`,
+      `📅 *Previsão:* ${formatBR(prazoDatas.minDate)} a ${formatBR(prazoDatas.maxDate)}`,
+
       "",
       details.trim() ? "📝 *Observações do cliente:*" : "📝 *Observações:*",
       details.trim() ? details.trim() : "Sem observações.",
@@ -260,7 +290,7 @@ export default function OrcamentoPage() {
     ];
 
     return linhas.join("\n");
-  }, [name, phone, pickedServices, pickedAddons, sitePages, systemUsers, appType, totals, prazo, details]);
+  }, [name, phone, pickedServices, pickedAddons, sitePages, systemUsers, appType, totals, prazo, prazoDatas, details]);
 
   const waLink = useMemo(() => `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(preProposal)}`, [preProposal]);
 
@@ -495,7 +525,10 @@ export default function OrcamentoPage() {
                     Subtotal: <span className="font-semibold">{brl(totals.min)} a {brl(totals.max)}</span>
                   </div>
                   <div className="mt-1 text-sm text-[#DDE6FF]">
-                    Prazo estimado: <span className="font-semibold">{prazo.min} a {prazo.max} dias</span>
+                    Prazo estimado: <span className="font-semibold">{prazo.min} a {prazo.max} dias úteis</span>
+                    <div className="mt-1 text-sm text-[#DDE6FF]">
+                      Previsão: <span className="font-semibold">{formatBR(prazoDatas.minDate)} a {formatBR(prazoDatas.maxDate)}</span>
+                    </div>
                     <span className="text-xs text-[#9AA4BF]"> (calculado conforme o cardápio)</span>
                   </div>
                 </div>
