@@ -27,11 +27,12 @@ export async function verifySessionToken(token: string) {
 
 // ✅ seta cookie de sessão (blindado)
 export async function setSessionCookie(token: string) {
+  const isProd = process.env.NODE_ENV === "production";
   const cookieStore = await cookies();
 
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: true, // produção https
+    secure: isProd, // HTTPS-only em produção
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 7, // 7 dias
@@ -40,13 +41,15 @@ export async function setSessionCookie(token: string) {
 
 // ✅ limpa cookie de sessão
 export async function clearSessionCookie() {
+  const isProd = process.env.NODE_ENV === "production";
   const cookieStore = await cookies();
 
   cookieStore.set(COOKIE_NAME, "", {
     httpOnly: true,
-    secure: true,
+    secure: isProd,
     sameSite: "lax",
     path: "/",
     maxAge: 0,
   });
 }
+

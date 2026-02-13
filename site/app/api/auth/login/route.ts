@@ -30,18 +30,6 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-
-    // DEBUG (pode remover depois)
-    console.log("LOGIN DEBUG:", {
-      inputEmail: String(email),
-      adminEmail: String(adminEmail),
-      emailMatch:
-        String(email).toLowerCase().trim() ===
-        String(adminEmail).toLowerCase().trim(),
-      hashPrefix: String(adminHash).slice(0, 12),
-      hashLen: String(adminHash).length,
-    });
-
     // valida email
     if (
       String(email).toLowerCase().trim() !==
