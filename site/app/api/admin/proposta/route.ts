@@ -22,21 +22,19 @@ function formatMoney(n?: number) {
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const key = url.searchParams.get("key") || "";
   const id = url.searchParams.get("id") || "";
 
-  const ADMIN_KEY = process.env.ADMIN_KEY || "";
-  if (!ADMIN_KEY || key !== ADMIN_KEY) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+  if (!id) {
+    return NextResponse.json({ ok: false, error: "missing id" }, { status: 400 });
   }
 
   const leads = loadLeads();
   const lead = leads.find((l: any) => l.id === id);
+
   if (!lead) {
     return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
   }
 
-  // PDF em memória
   const doc = new PDFDocument({ size: "A4", margin: 50 });
   const chunks: Buffer[] = [];
 
@@ -85,19 +83,16 @@ export async function GET(req: Request) {
   doc.fontSize(12).text("Investimento", { underline: true });
   doc.moveDown(0.5);
   doc.fontSize(11).text(`Estimativa: ${formatMoney(lead.totalMin)} a ${formatMoney(lead.totalMax)}`);
-
   doc.moveDown(0.5);
   doc.text(`Valor fechado: ${formatMoney(lead.finalValue)}`);
   doc.text(`Entrada: ${formatMoney(lead.entrada)}`);
   doc.text(`Parcelas: ${lead.parcelas ?? "—"}`);
-
   doc.moveDown(1);
 
   // Observações
   doc.fontSize(12).text("Observações", { underline: true });
   doc.moveDown(0.5);
   doc.fontSize(11).text(lead.details || "—", { width: 500 });
-
   doc.moveDown(1.5);
 
   // Validade + assinatura
@@ -111,15 +106,13 @@ export async function GET(req: Request) {
   doc.end();
 
   const pdf = await done;
+  const body = new Uint8Array(pdf);
 
-// converte Buffer -> Uint8Array (BodyInit compatível)
-const body = new Uint8Array(pdf);
-
-return new NextResponse(body, {
-  headers: {
-    "Content-Type": "application/pdf",
-    "Content-Disposition": `inline; filename="proposta-${lead.id}.pdf"`,
-    "Cache-Control": "no-store",
-  },
-});
+  return new NextResponse(body, {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `inline; filename="proposta-${lead.id}.pdf"`,
+      "Cache-Control": "no-store",
+    },
+  });
 }

@@ -11,14 +11,7 @@ function readLeads() {
   return JSON.parse(raw);
 }
 
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const key = url.searchParams.get("key") || "";
-
-  const ADMIN_KEY = process.env.ADMIN_KEY || "";
-  if (!ADMIN_KEY || key !== ADMIN_KEY) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  }
+export async function GET() {
 
   return NextResponse.json({ ok: true, leads: readLeads() });
 }
