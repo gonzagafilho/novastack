@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-
+import LeadsChart from "../_components/LeadsChart";
 
 type LeadStatus = "novo" | "em_analise" | "proposta_enviada" | "fechado" | "perdido";
 type Lead = {
@@ -235,6 +235,10 @@ export default function AdminLeadsPage() {
             {loadingStats && (
               <span className="text-xs text-white/50 ml-2">Carregando métricas…</span>
             )}
+          </div>
+          {/* GRÁFICO (usa o mesmo período dos botões) */}
+          <div className="mt-4">
+            <LeadsChart days={days === 0 ? 365 : days} />
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
