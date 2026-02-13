@@ -1,42 +1,88 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { readLeads, writeLeads } from "@/app/lib/leadsStore";
 
 export const runtime = "nodejs";
 
-function getFile() {
-  return path.join(process.cwd(), "data", "leads.json");
+const STATUS_ALLOWED = new Set([
+  "novo",
+  "em_analise",
+  "proposta_enviada",
+  "fechado",
+  "perdido",
+]);
+
+function toNumberOrUndefined(v: any): number | undefined {
+  if (v === undefined || v === null || v === "") return undefined;
+  const n = Number(v);
+  if (Number.isNaN(n)) return undefined;
+  return n;
 }
 
 export async function POST(req: Request) {
   try {
-    const { id, status, finalValue, entrada, parcelas } = await req.json();
+    const body = await req.json();
 
-    const file = getFile();
-    if (!fs.existsSync(file)) {
-      return NextResponse.json({ ok: false, error: "no data" }, { status: 400 });
+    const id = String(body?.id || "").trim();
+    if (!id) {
+      return NextResponse.json({ ok: false, error: "missing id" }, { status: 400 });
     }
 
-    const raw = fs.readFileSync(file, "utf8");
-    const leads = JSON.parse(raw);
+    const status = body?.status !== undefined ? String(body.status) : undefined;
+    if (status !== undefined && !STATUS_ALLOWED.has(status)) {
+      return NextResponse.json({ ok: false, error: "Status inválido" }, { status: 400 });
+    }
 
-    const index = leads.findIndex((l: any) => l.id === id);
-    if (index === -1) {
+    const finalValue = toNumberOrUndefined(body?.finalValue);
+    const entrada = toNumberOrUndefined(body?.entrada);
+    const parcelas = toNumberOrUndefined(body?.parcelas);
+
+    const leads = await readLeads();
+    const idx = leads.findIndex((l: any) => String(l?.id) === id);
+
+    if (idx === -1) {
       return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
     }
 
-    leads[index] = {
-      ...leads[index],
-      status: status ?? leads[index].status,
-      finalValue: finalValue ?? leads[index].finalValue,
-      entrada: entrada ?? leads[index].entrada,
-      parcelas: parcelas ?? leads[index].parcelas,
+    const lead = leads[idx];
+
+    // histórico (diff)
+    const now = new Date().toISOString();
+    const changes: any = {};
+
+    function track(field: string, from: any, to: any) {
+      if (to === undefined) return;
+      if (from !== to) changes[field] = { from, to };
+    }
+
+    track("status", lead.status ?? "novo", status);
+    track("finalValue", lead.finalValue ?? null, finalValue ?? null);
+    track("entrada", lead.entrada ?? null, entrada ?? null);
+    track("parcelas", lead.parcelas ?? null, parcelas ?? null);
+
+    const nextStatus = status ?? lead.status ?? "novo";
+
+    const updatedLead = {
+      ...lead,
+      status: nextStatus,
+      finalValue: finalValue ?? lead.finalValue,
+      entrada: entrada ?? lead.entrada,
+      parcelas: parcelas ?? lead.parcelas,
+      updatedAt: now,
+      closedAt: nextStatus === "fechado" ? (lead.closedAt ?? now) : (lead.closedAt ?? null),
+      history: [
+        ...(Array.isArray(lead.history) ? lead.history : []),
+        { at: now, action: "update", changes },
+      ],
     };
 
-    fs.writeFileSync(file, JSON.stringify(leads, null, 2), "utf8");
+    leads[idx] = updatedLead;
+    await writeLeads(leads);
 
-    return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e.message }, { status: 500 });
+    return NextResponse.json({ ok: true, lead: updatedLead });
+  } catch (err: any) {
+    return NextResponse.json(
+      { ok: false, error: err?.message || "Erro ao atualizar lead" },
+      { status: 500 }
+    );
   }
 }

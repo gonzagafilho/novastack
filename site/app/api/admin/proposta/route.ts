@@ -12,11 +12,17 @@ function getLeadsFile() {
 function loadLeads() {
   const file = getLeadsFile();
   if (!fs.existsSync(file)) return [];
-  return JSON.parse(fs.readFileSync(file, "utf8"));
+  try {
+    const raw = fs.readFileSync(file, "utf8");
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : (data?.leads ?? []);
+  } catch {
+    return [];
+  }
 }
 
 function formatMoney(n?: number) {
-  if (typeof n !== "number") return "—";
+  if (typeof n !== "number" || Number.isNaN(n)) return "—";
   return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
@@ -29,7 +35,7 @@ export async function GET(req: Request) {
   }
 
   const leads = loadLeads();
-  const lead = leads.find((l: any) => l.id === id);
+  const lead = leads.find((l: any) => String(l?.id) === String(id));
 
   if (!lead) {
     return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
@@ -53,9 +59,13 @@ export async function GET(req: Request) {
   // Cliente
   doc.fontSize(12).text("Dados do Cliente", { underline: true });
   doc.moveDown(0.5);
-  doc.fontSize(11).text(`Nome: ${lead.name}`);
-  doc.text(`Telefone: ${lead.phone}`);
-  doc.text(`Data do pedido: ${new Date(lead.createdAt).toLocaleString("pt-BR")}`);
+  doc.fontSize(11).text(`Nome: ${lead.name ?? "—"}`);
+  doc.text(`Telefone: ${lead.phone ?? "—"}`);
+  doc.text(
+    `Data do pedido: ${
+      lead.createdAt ? new Date(lead.createdAt).toLocaleString("pt-BR") : "—"
+    }`
+  );
   doc.moveDown(1);
 
   // Escopo
@@ -75,14 +85,18 @@ export async function GET(req: Request) {
   // Prazo
   doc.fontSize(12).text("Prazo", { underline: true });
   doc.moveDown(0.5);
-  doc.fontSize(11).text(`Prazo estimado: ${lead.prazoMin} a ${lead.prazoMax} dias úteis`);
-  doc.text(`Previsão: ${lead.previsaoMin} a ${lead.previsaoMax}`);
+  doc.fontSize(11).text(
+    `Prazo estimado: ${lead.prazoMin ?? "—"} a ${lead.prazoMax ?? "—"} dias úteis`
+  );
+  doc.text(`Previsão: ${lead.previsaoMin ?? "—"} a ${lead.previsaoMax ?? "—"}`);
   doc.moveDown(1);
 
   // Valores
   doc.fontSize(12).text("Investimento", { underline: true });
   doc.moveDown(0.5);
-  doc.fontSize(11).text(`Estimativa: ${formatMoney(lead.totalMin)} a ${formatMoney(lead.totalMax)}`);
+  doc.fontSize(11).text(
+    `Estimativa: ${formatMoney(lead.totalMin)} a ${formatMoney(lead.totalMax)}`
+  );
   doc.moveDown(0.5);
   doc.text(`Valor fechado: ${formatMoney(lead.finalValue)}`);
   doc.text(`Entrada: ${formatMoney(lead.entrada)}`);
@@ -92,7 +106,7 @@ export async function GET(req: Request) {
   // Observações
   doc.fontSize(12).text("Observações", { underline: true });
   doc.moveDown(0.5);
-  doc.fontSize(11).text(lead.details || "—", { width: 500 });
+  doc.fontSize(11).text(lead.details || lead.preProposal || "—", { width: 500 });
   doc.moveDown(1.5);
 
   // Validade + assinatura
@@ -111,7 +125,7 @@ export async function GET(req: Request) {
   return new NextResponse(body, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="proposta-${lead.id}.pdf"`,
+      "Content-Disposition": `inline; filename="proposta-${String(lead.id)}.pdf"`,
       "Cache-Control": "no-store",
     },
   });
