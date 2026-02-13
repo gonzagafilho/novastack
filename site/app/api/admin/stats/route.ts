@@ -1,15 +1,20 @@
 import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
+import { readLeadsMongo } from "@/app/lib/leadsStoreMongo";
 
 type Lead = {
   id: string;
   name?: string;
   phone?: string;
   createdAt?: string; // ISO
-  status?: "novo" | "negociando" | "proposta" | "fechado" | "perdido" | string;
+  status?: string;
+
+  // compat
   valorFechado?: number | string;
-  // opcional: se você tiver valorMin/Max do orçamento
+
+  // atual
+  finalValue?: number | string;
   totalMin?: number | string;
   totalMax?: number | string;
 };
@@ -29,50 +34,56 @@ function safeDate(v?: string): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-async function readLeads(): Promise<Lead[]> {
-  // Ajuste aqui se o seu JSON estiver em outro lugar.
-  // Um padrão seguro é manter em: /data/leads.json
+async function readLeadsJson(): Promise<Lead[]> {
   const filePath = path.join(process.cwd(), "data", "leads.json");
   const raw = await fs.readFile(filePath, "utf-8");
   const parsed = JSON.parse(raw);
-  return Array.isArray(parsed) ? parsed : [];
+  return Array.isArray(parsed) ? parsed : (parsed?.leads ?? []);
+}
+
+function filterByPeriod(leadsAll: Lead[], url: URL): Lead[] {
+  const days = Number(url.searchParams.get("days") || "");
+  const fromStr = url.searchParams.get("from") || "";
+  const toStr = url.searchParams.get("to") || "";
+
+  let leads = leadsAll;
+
+  if (Number.isFinite(days) && days > 0) {
+    const start = new Date();
+    start.setDate(start.getDate() - days);
+
+    leads = leads.filter((l) => {
+      const d = safeDate(l.createdAt);
+      return d ? d >= start : true;
+    });
+  } else if (fromStr || toStr) {
+    const from = fromStr ? new Date(fromStr) : null;
+    const to = toStr ? new Date(toStr) : null;
+
+    leads = leads.filter((l) => {
+      const d = safeDate(l.createdAt);
+      if (!d) return true;
+      if (from && d < from) return false;
+      if (to && d > to) return false;
+      return true;
+    });
+  }
+
+  return leads;
 }
 
 export async function GET(req: Request) {
   try {
+    const useMongo = process.env.USE_MONGO === "1";
     const url = new URL(req.url);
 
-    // filtros opcionais:
-    // ?days=7  (últimos X dias)
-    // ou ?from=2026-02-01&to=2026-02-12 (ISO/date)
-    const days = Number(url.searchParams.get("days") || "");
-    const fromStr = url.searchParams.get("from") || "";
-    const toStr = url.searchParams.get("to") || "";
+    // 1) leitura
+    const leadsAll: Lead[] = useMongo ? (await readLeadsMongo() as any) : await readLeadsJson();
 
-    const leadsAll = await readLeads();
+    // 2) período
+    const leads = filterByPeriod(leadsAll, url);
 
-    let leads = leadsAll;
-
-    // aplica filtro por período se existir
-    if (Number.isFinite(days) && days > 0) {
-      const start = new Date();
-      start.setDate(start.getDate() - days);
-      leads = leads.filter((l) => {
-        const d = safeDate(l.createdAt);
-        return d ? d >= start : true;
-      });
-    } else if (fromStr || toStr) {
-      const from = fromStr ? new Date(fromStr) : null;
-      const to = toStr ? new Date(toStr) : null;
-      leads = leads.filter((l) => {
-        const d = safeDate(l.createdAt);
-        if (!d) return true;
-        if (from && d < from) return false;
-        if (to && d > to) return false;
-        return true;
-      });
-    }
-
+    // 3) contagens
     const total = leads.length;
 
     const byStatus: Record<string, number> = {};
@@ -84,19 +95,17 @@ export async function GET(req: Request) {
     const closed = (byStatus["fechado"] || 0);
     const lost = (byStatus["perdido"] || 0);
 
+    // 4) receita fechada (aceita finalValue e valorFechado)
     const revenueClosed = leads
-     .filter((l) => (l.status || "") === "fechado")
-     .reduce((sum, l: any) => {
-       // aceita finalValue (padrão atual) e valorFechado (compat)
-      return sum + toNumber(l.finalValue ?? l.valorFechado);
-    }, 0);
+      .filter((l) => (l.status || "") === "fechado")
+      .reduce((sum, l: any) => sum + toNumber(l.finalValue ?? l.valorFechado), 0);
 
     const ticketAvg = closed > 0 ? revenueClosed / closed : 0;
 
-    // Receita estimada (opcional): soma de média entre min/max se existir
+    // 5) receita estimada (média do min/max)
     const revenueEstimated = leads.reduce((sum, l: any) => {
-    const min = toNumber(l.totalMin);
-    const max = toNumber(l.totalMax);
+      const min = toNumber(l.totalMin);
+      const max = toNumber(l.totalMax);
       if (min > 0 && max > 0) return sum + (min + max) / 2;
       return sum;
     }, 0);
@@ -105,6 +114,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       ok: true,
+      storage: useMongo ? "mongo" : "json",
       total,
       closed,
       lost,

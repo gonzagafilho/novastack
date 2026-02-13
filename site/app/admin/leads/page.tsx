@@ -293,6 +293,7 @@ export default function AdminLeadsPage() {
                 onChange={(e) => setStatusFilter(e.target.value as any)}
                 className="rounded-xl border border-white/10 bg-[#0D1224]/60 px-3 py-2 text-xs text-white"
               >
+                <option value="todos">Todos</option>
                 <option value="novo">Novo</option>
                 <option value="em_analise">Em análise</option>
                 <option value="proposta_enviada">Proposta enviada</option>
@@ -304,15 +305,14 @@ export default function AdminLeadsPage() {
             <div className="flex items-center gap-2">
               <span className="text-xs text-white/60">Ordenar por:</span>
               <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as any)}
+                value={sortKey}
+                onChange={(e) => setSortKey(e.target.value as any)}
                 className="rounded-xl border border-white/10 bg-[#0D1224]/60 px-3 py-2 text-xs text-white"
               >
-               <option value="novo">Novo</option>
-               <option value="em_analise">Em análise</option>
-               <option value="proposta_enviada">Proposta enviada</option>
-               <option value="fechado">Fechado</option>
-               <option value="perdido">Perdido</option>
+                <option value="createdAt">Data</option>
+                <option value="name">Nome</option>
+                <option value="totalMax">Valor estimado (máx.)</option>
+                <option value="finalValue">Valor fechado</option>
               </select>
             </div>
 
@@ -396,8 +396,8 @@ export default function AdminLeadsPage() {
                     onChange={(e) => updateLead(l.id, { status: e.target.value as LeadStatus })}
                   >
                     <option value="novo">Novo</option>
-                    <option value="negociando">Em negociação</option>
-                    <option value="proposta">Proposta enviada</option>
+                    <option value="em_analise">Em análise</option>
+                    <option value="proposta_enviada">Proposta enviada</option>
                     <option value="fechado">Fechado</option>
                     <option value="perdido">Perdido</option>
                   </select>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readLeads, writeLeads } from "@/app/lib/leadsStore";
+import { findLeadMongo, upsertLeadMongo } from "@/app/lib/leadsStoreMongo";
 
 export const runtime = "nodejs";
 
@@ -18,34 +19,47 @@ function toNumberOrUndefined(v: any): number | undefined {
   return n;
 }
 
+function jsonError(msg: string, status = 400) {
+  return NextResponse.json({ ok: false, error: msg }, { status });
+}
+
 export async function POST(req: Request) {
   try {
+    const useMongo = process.env.USE_MONGO === "1";
     const body = await req.json();
 
     const id = String(body?.id || "").trim();
-    if (!id) {
-      return NextResponse.json({ ok: false, error: "missing id" }, { status: 400 });
-    }
+    if (!id) return jsonError("missing id", 400);
 
     const status = body?.status !== undefined ? String(body.status) : undefined;
     if (status !== undefined && !STATUS_ALLOWED.has(status)) {
-      return NextResponse.json({ ok: false, error: "Status inválido" }, { status: 400 });
+      return jsonError("Status inválido", 400);
     }
 
     const finalValue = toNumberOrUndefined(body?.finalValue);
     const entrada = toNumberOrUndefined(body?.entrada);
     const parcelas = toNumberOrUndefined(body?.parcelas);
 
-    const leads = await readLeads();
-    const idx = leads.findIndex((l: any) => String(l?.id) === id);
+    // =========================
+    // 1) CARREGAR LEAD
+    // =========================
+    let lead: any | null = null;
+    let leadsJson: any[] | null = null;
+    let idx = -1;
 
-    if (idx === -1) {
-      return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
+    if (useMongo) {
+      lead = await findLeadMongo(id);
+      if (!lead) return jsonError("not found", 404);
+    } else {
+      leadsJson = await readLeads();
+      idx = leadsJson.findIndex((l: any) => String(l?.id) === id);
+      if (idx === -1) return jsonError("not found", 404);
+      lead = leadsJson[idx];
     }
 
-    const lead = leads[idx];
-
-    // histórico (diff)
+    // =========================
+    // 2) HISTÓRICO (DIFF)
+    // =========================
     const now = new Date().toISOString();
     const changes: any = {};
 
@@ -75,10 +89,18 @@ export async function POST(req: Request) {
       ],
     };
 
-    leads[idx] = updatedLead;
-    await writeLeads(leads);
+    // =========================
+    // 3) SALVAR
+    // =========================
+    if (useMongo) {
+      await upsertLeadMongo(updatedLead);
+      return NextResponse.json({ ok: true, lead: updatedLead, storage: "mongo" });
+    }
 
-    return NextResponse.json({ ok: true, lead: updatedLead });
+    // JSON fallback
+    leadsJson![idx] = updatedLead;
+    await writeLeads(leadsJson!);
+    return NextResponse.json({ ok: true, lead: updatedLead, storage: "json" });
   } catch (err: any) {
     return NextResponse.json(
       { ok: false, error: err?.message || "Erro ao atualizar lead" },
